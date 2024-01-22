@@ -1,0 +1,114 @@
+library(statmod)
+parametros <- list(
+  bin = list(
+    p = c(0.3, 0.5, 0.95),
+    n = c(1,10,15)
+  ),
+  poi = list(
+    lambda = c(1,4,10)
+  ),
+  bin_n = list(
+    p = c(0.3, 0.5, 0.95),
+    n = c(1,10,15)
+  ),
+  normal = list(
+    mu = c(0, 5, 10),
+    sigma = c(1, 2, 5)
+  ),
+  inv_normal = list(
+    mu = c(1,5,10),
+    lambda = c(1,2,3)
+  ),
+  gamma = list(
+    alpha = c(1, 5, 10),
+    beta = c(2,3,0.5)
+  ),
+  config = list(
+    cor = c("red", "blue", "green")
+  )
+)
+#Binomial
+for (i in seq_len(length(parametros$bin$p))){
+  if(i == 1){
+    curve(dbinom(x, size = parametros$bin$n[i], prob = parametros$bin$p[i]), from= 0, to = 20, n = 21, ylab = "P(x)", col = parametros$config$cor[i], type = "b", main = "Binomial/Bernoulli")
+  }
+  else{
+    curve(dbinom(x, size = parametros$bin$n[i], prob = parametros$bin$p[i]), from= 0, to = 20, n = 21,ylab = "P(x)", add = T, col = parametros$config$cor[i],
+          type = "b")
+  }
+  
+}
+legend(13, 0.7, legend=paste0("p = ",parametros$bin$p, " n = ", parametros$bin$n),
+       col=parametros$config$cor, lty=1, cex=1.2)
+
+#Poisson
+for (i in seq_len(length(parametros$poi$lambda))){
+  if(i == 1){
+    curve(dpois(x, lambda = parametros$poi$lambda[i]), from= 0, to = 20,n = 21, ylab = "P(x)", col = parametros$config$cor[i], type = "b", main = "Poisson")
+  }
+  else{
+    curve(dpois(x, lambda = parametros$poi$lambda[i]), from= 0, to = 20,n =21,  ylab = "P(x)", add = T, col = parametros$config$cor[i],
+          type = "b")
+  }
+  
+}
+legend(13, 0.3, legend=paste0("lambda = ", parametros$poi$lambda),
+       col=parametros$config$cor, lty=1, cex=1.2)
+
+#Binomial negativa
+for (i in seq_len(length(parametros$bin_n$p))){
+  if(i == 1){
+    curve(dnbinom(x, size = parametros$bin_n$n[i], prob = parametros$bin_n$p[i]), from= 0, to = 20, n = 21, ylab = "P(x)", col = parametros$config$cor[i], type = "b", main = "Binomial Negativa")
+  }
+  else{
+    curve(dnbinom(x, size = parametros$bin_n$n[i], prob = parametros$bin_n$p[i]), from= 0, to = 20, n = 21,ylab = "P(x)", add = T, col = parametros$config$cor[i],
+          type = "b")
+  }
+  
+}
+legend(13, 0.25, legend=paste0("r = ",parametros$bin$p, " n = ", parametros$bin$n),
+       col=parametros$config$cor, lty=1, cex=1.2)
+
+#Normal
+for (i in seq_len(length(parametros$bin_n$p))){
+  if(i == 1){
+    curve(dnorm(x, mean =  parametros$normal$mu[i], sd = parametros$normal$sigma[i]), from= -20, to = 20, ylab = "P(x)", col = parametros$config$cor[i], type = "l", main = "Normal")
+  }
+  else{
+    curve(dnorm(x, mean =  parametros$normal$mu[i], sd = parametros$normal$sigma[i]), from= -20, to = 20,ylab = "P(x)", add = T, col = parametros$config$cor[i],
+          type = "l")
+  }
+  
+}
+legend(12.5, 0.35, legend=paste0("mu = ",parametros$normal$mu, " sigma = ", parametros$normal$sigma),
+       col=parametros$config$cor, lty=1, cex=1.2)
+
+#Normal inversa
+for (i in seq_len(length(parametros$bin_n$p))){
+  if(i == 1){
+    curve(dinvgauss(x, mean =  parametros$inv_normal$mu[i], shape = parametros$inv_normal$lambda[i]), from= 0, to = 20, ylab = "P(x)", col = parametros$config$cor[i], type = "l", main = "Normal Inversa")
+  }
+  else{
+    curve(dinvgauss(x, mean =  parametros$inv_normal$mu[i], shape = parametros$inv_normal$lambda[i]), from= 0, to = 20,ylab = "P(x)", add = T, col = parametros$config$cor[i],
+          type = "l")
+  }
+  
+}
+legend(12, 0.65, legend=paste0("mu = ",parametros$inv_normal$mu, " lambda = ", parametros$inv_normal$lambda),
+       col=parametros$config$cor, lty=1, cex=1.2)
+
+
+#Gamma
+for (i in seq_len(length(parametros$bin_n$p))){
+  if(i == 1){
+    curve(dgamma(x, shape =  parametros$gamma$alpha[i], scale  = parametros$gamma$beta[i]), from= 0, to = 20, ylab = "P(x)", col = parametros$config$cor[i], type = "l", main = "Gamma/Exponencial")
+  }
+  else{
+    curve(dgamma(x, shape =  parametros$gamma$alpha[i], scale  = parametros$gamma$beta[i]), from= 0, to = 20,ylab = "P(x)", add = T, col = parametros$config$cor[i],
+          type = "l")
+  }
+  
+}
+legend(12, 0.33, legend=paste0("alpha = ",parametros$gamma$alpha, " beta = ",parametros$gamma$beta),
+       col=parametros$config$cor, lty=1, cex=1.2)
+

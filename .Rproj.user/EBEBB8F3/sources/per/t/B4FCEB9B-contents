@@ -1,0 +1,48 @@
+if(!require(data.table)){install.packages("data.table")}
+if(!require(dplyr)){install.packages("dplyr")}
+dados <- fread("http://www.cnachtsheim-text.csom.umn.edu/Kutner/Chapter%20%205%20Data%20Sets/CH05PR05.txt",
+               col.names = c("emprest", "empresas"))
+dados <- dados %>%  mutate(calculo = rep(1,nrow(dados)))
+
+x <- as.matrix(dados[,c("calculo", "empresas")])
+y <- as.matrix(dados[,"emprest"])
+
+#item a)
+t(y)%*%y
+t(x)%*%x
+t(x)%*%y
+
+  #item b)
+solve(t(x)%*%x)
+
+#item c)
+solve(t(x)%*%x)%*%t(x)%*%y
+
+#item d)
+model <- lm(emprest~empresas, data = dados)
+
+#item e)
+sqres <- sum(model$residuals^2)
+sqreg <- sum((model$fitted.values - mean(model$fitted.values))^2)
+
+#item f)
+var(dados$emprest)*solve(t(x)%*%x)
+
+#item g)
+predict(model, newdata = data.frame(empresas = c(4)))
+
+#item h)
+#cov
+var(dados$emprest)*solve(t(x)%*%x)[1,2]
+
+#var b_0
+var(dados$emprest)*solve(t(x)%*%x)[2,2]
+
+#var b_1
+var(dados$emprest)*solve(t(x)%*%x)[1,1]
+
+#item i)
+h <- x%*%solve(t(x)%*%x)%*%t(x)
+
+#item j)
+var(dados$emprest)*(diag(6) - h)
