@@ -60,6 +60,69 @@ linearHypothesis(ajust[[3]],hypothesis.matrix=c(0,0,0,0,1,1))
 fit.model <- ajust[[3]]
 source("envelope_gama_ident.R")
 
+#--grafico influencia
+yajust <- fitted.values(ajust[[3]])
+X <- model.matrix(ajust[[3]])
+w <- ajust[[3]]$weights
+W <- diag(w)
+H <- sqrt(W)%*%X%*%solve(t(X)%*%W%*%X)%*%t(X)%*%sqrt(W) #Matriz de projeção
+h <- diag(H) #Elementos da matriz de projeção H
+
+
+plot(h, xlab = "Indices", ylab = "Elementos da Matriz de Projeção H",
+     pch = 19, cex = 1.3)
+title("Pontos de Alavanca (Leverage)")
+which(h > 0.02)
+
+par(mfrow = c(1,2))
+influenceIndexPlot(ajust[[3]], vars=c("Cook"), pch=19, cex=1.2, main="Distância de Cook")
+influenceIndexPlot(ajust[[3]], vars=c("Studentized"), pch=19, cex=1.2, main = "Resíduos Padronizados")
+
+#--residuos quantilicos
+par(mfrow=c(2,1))
+residuos <- qresiduals(ajust[[3]])
+plot(residuos, ylab = "Resíduos Quantilicos", pch=19, cex=1.2)
+qqnorm(residuos, pch=19, cex=1.2)
+qqline(residuos, col = 2)
+shapiro.test(residuos)
+par(mfrow=c(1,1))
+shapiro.test(residuos)
+
+#--residuos vs valores ajustados
+par(mfrow = c(1,2))
+residuos <- qresid(ajust[[3]])
+ajustados <- predict(ajust[[3]])
+plot(residuos ~ ajustados, pch = 20, cex = 1.4, col = 'blue', main = "Resíduos vs Valores Ajustados")
+
+
+#--quantil quantil normal
+par(mfrow = c(1,1))
+qqnorm(residuos, pch = 20, cex = 1.4, col = 'blue')
+qqline(residuos)
+
+#--componentes da deviance
+phi = 1
+res = residuals(ajust[[3]], type = 'response') # Resíduos Ordinários
+
+rd = residuals(ajust[[3]], type = "deviance") # Componente da Deviance
+rdl = rd/sqrt(phi*(1-h)) # Componente da Dev. padronizado
+
+rp = residuals(ajust[[3]], type = "pearson") # Residuo de Pearson
+rpl = rp/sqrt(phi*(1-h)) # Residuo Pearson Padronizado
+
+LD = (h/(1-h))*(rpl)^2 # Afastamento da Vero. para Dist. de Cook
+
+# Componentes da Deviance
+par(mfrow = c(1,2))
+plot(rdl, xlab = "Indices", ylab = "Componentes da Deviance",
+     pch = 1, cex = 1)
+title("Residuo - Componente da Deviance Padronizada")
+
+# Distancia de Cook
+plot(LD, xlab = "Indices", ylab = "Distância de Cook",
+     pch = 19, cex = 1.3)
+title("Distância de Cook vs Indices")
+par(mfrow = c(1,1))
 
 #Modelo - Normal Inversa
 
@@ -94,3 +157,5 @@ linearHypothesis(ajust_ninv[[3]],hypothesis.matrix=c(0,0,0,0,1,1))
 #Diagnóstico - Normal Inversa
 fit.model <- ajust_ninv[[3]]
 source("envelope_ginv_ident.R")
+
+
