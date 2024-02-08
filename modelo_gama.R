@@ -28,7 +28,7 @@ ggplot(dados, aes(x=densidade_máxima, y=tempo_duracao, color=grupo)) +
 
 #Modelo - Gamma 
 
-ajust <- vector("list", 3)
+ajust <- vector("list", 5)
 formulas <- c(tempo_duracao~1,tempo_duracao~densidade_máxima, tempo_duracao~densidade_máxima + grupo, tempo_duracao~densidade_máxima*grupo)
 
 
@@ -80,8 +80,6 @@ source("envelope_gama_ident.R")
 
 
 #Gráfico influencia
-par(mfrow = c(1,2))
-grafico_inf <- influence_graph(ajust[[4]], plot =T)
 grafico_inf <- influence_graph(ajust[[5]], plot =T)
 
 which(grafico_inf > 0.02)
@@ -94,8 +92,6 @@ influenceIndexPlot(ajust[[5]], vars=c("Studentized"), pch=19, cex=1.2, main = "R
 #Residuos quantilicos
 residuos <- qresiduals(ajust[[5]])
 plot(residuos, ylab = "Resíduos Quantilicos", pch=19, cex=1.2)
-qqnorm(residuos, pch=19, cex=1.2)
-qqline(residuos, col = 2)
 shapiro.test(residuos)
 
 
@@ -106,3 +102,12 @@ plot(resid_pred_ident$resid ~ resid_pred_ident$ajust, pch = 20, cex = 1.4, col =
 #Quantil quantil normal
 qqnorm(resid_pred_ident$resid, pch = 20, cex = 1.4, col = 'blue')
 qqline(resid_pred_ident$resid)
+
+
+#Modelo sem os pontos 8 e 9
+
+dados2 <- dados[which(rownames(dados) %in% c("8", "9")), ]
+ajust2 <- vector("list", 1)
+ajust2[[1]] <- glm(formulas[[4]], data = dados, family = Gamma(link = "identity"))
+
+#Pontos 8 e 9 não sao influentes

@@ -16,7 +16,7 @@ dados$grupo <- factor(dados$grupo)
 
 #Modelo - Gamma 
 
-ajust <- vector("list", 3)
+ajust <- vector("list", 5)
 formulas <- c(tempo_duracao~1,tempo_duracao~densidade_máxima, tempo_duracao~densidade_máxima + grupo, tempo_duracao~densidade_máxima*grupo)
 
 ajust[[1]] <- glm(formulas[[1]], data = dados, family = inverse.gaussian(link = "log"))
@@ -83,8 +83,6 @@ influenceIndexPlot(ajust[[5]], vars=c("Studentized"), pch=19, cex=1.2, main = "R
 #Residuos quantilicos
 residuos <- qresiduals(ajust[[5]])
 plot(residuos, ylab = "Resíduos Quantilicos", pch=19, cex=1.2)
-qqnorm(residuos, pch=19, cex=1.2)
-qqline(residuos, col = 2)
 shapiro.test(residuos)
 
 
