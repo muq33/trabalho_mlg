@@ -13,31 +13,18 @@ source("utils.R")
 dados <- read.table("dados.txt", header = T, sep = ",", dec = ".")
 dados$grupo <- factor(dados$grupo)
 
-#Descritivo
-
-plot(fitdist(dados$tempo_duracao, distr = "gamma"))
-plot(fitdist(dados$tempo_duracao, distr = "exp"))
-plot(fitdist(dados$tempo_duracao, distr = "invgauss", start = list(mean = 1, shape = 1)))
- 
-summaryBy(tempo_duracao~grupo, data=dados, FUN=c(mean, sd))
-plotMeans(dados$tempo_duracao,  dados$grupo,  error.bars="se")
-with(dados, plot(densidade_máxima, tempo_duracao))
-
-ggplot(dados, aes(x=densidade_máxima, y=tempo_duracao, color=grupo)) + 
-  geom_point(size=6) + ggtitle("Gráfico de dispersão dos dados")
 
 #Modelo - Gamma 
 
 ajust <- vector("list", 3)
 formulas <- c(tempo_duracao~1,tempo_duracao~densidade_máxima, tempo_duracao~densidade_máxima + grupo, tempo_duracao~densidade_máxima*grupo)
 
+ajust[[1]] <- glm(formulas[[1]], data = dados, family = inverse.gaussian(link = "log"))
+ajust[[2]] <- glm(formulas[[2]], data = dados, family = inverse.gaussian(link = "log"))
+ajust[[3]] <- glm(formulas[[3]], data = dados, family = inverse.gaussian(link = "log"))
+ajust[[4]] <- glm(formulas[[4]], data = dados, family = inverse.gaussian(link = "log"))
 
-ajust[[1]] <- glm(formulas[[1]], data = dados, family = Gamma(link = "log"))
-ajust[[2]] <- glm(formulas[[2]], data = dados, family = Gamma(link = "log"))
-ajust[[3]] <- glm(formulas[[3]], data = dados, family = Gamma(link = "log"))
-ajust[[4]] <- glm(formulas[[4]], data = dados, family = Gamma(link = "log"))
 
-# 0 é referencia nas 2
 
 #Modelos encaixados
 
@@ -61,10 +48,12 @@ saida_teste <- data.frame(
 ); xtable(saida_teste)
 
 
+
 #Comparação de modelos
-ajust[[5]] <- glm(formulas[[4]], data = dados, family = Gamma(link = "identity"))
+ajust[[5]] <- glm(formulas[[4]], data = dados, family = inverse.gaussian(link = "identity"))
+
 saida_comparacao <- data.frame(
-  modelo = c("Gamma", "Gamma"),
+  modelo = c("GInversa", "GInversa"),
   ligacao = c("Logaritmo", "Identidade"),
   AIC = c(AIC(ajust[[4]]), AIC(ajust[[5]])),
   BIC = c(BIC(ajust[[4]]), BIC(ajust[[5]])),
@@ -74,7 +63,7 @@ saida_comparacao <- data.frame(
 #Contrastes (precisamos de hipóteses melhores)
 
 
-#Diagnóstico - Gamma (Ident)
+#Diagnóstico - GInversa (Ident)
 fit.model <- ajust[[5]]
 source("envelope_gama_ident.R")
 
@@ -106,3 +95,5 @@ plot(resid_pred_ident$resid ~ resid_pred_ident$ajust, pch = 20, cex = 1.4, col =
 #Quantil quantil normal
 qqnorm(resid_pred_ident$resid, pch = 20, cex = 1.4, col = 'blue')
 qqline(resid_pred_ident$resid)
+
+
