@@ -65,7 +65,7 @@ saida_comparacao <- data.frame(
 
 #Diagnóstico - GInversa (Ident)
 fit.model <- ajust[[5]]
-source("envelope_gama_ident.R")
+source("envelope_ginv_ident.R")
 
 
 #Gráfico influencia
