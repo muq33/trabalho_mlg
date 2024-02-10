@@ -6,7 +6,7 @@ if(!require(ggplot2)){install.packages("ggplot2")}
 if(!require(lmtest)){install.packages("lmtest")}
 if(!require(xtable)){install.packages("xtable")}
 if(!require(car)){install.packages("car")}
-
+if(!require(moments)){install.packages("moments")}
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 source("utils.R")
 
@@ -15,12 +15,15 @@ dados$grupo <- factor(dados$grupo)
 
 #Descritivo
 
+skewness(dados$tempo_duracao)
+kurtosis(dados$tempo_duracao)
+
 plot(fitdist(dados$tempo_duracao, distr = "gamma"))
 plot(fitdist(dados$tempo_duracao, distr = "exp"))
 plot(fitdist(dados$tempo_duracao, distr = "invgauss", start = list(mean = 1, shape = 1)))
  
 summaryBy(tempo_duracao~grupo, data=dados, FUN=c(mean, sd))
-plotMeans(dados$tempo_duracao,  dados$grupo,  error.bars="se")
+plotMeans(dados$tempo_duracao,  dados$grupo,  error.bars="se", ylab = "Média de duração de tempo", xlab = "Grupo")
 with(dados, plot(densidade_máxima, tempo_duracao))
 
 ggplot(dados, aes(x=densidade_máxima, y=tempo_duracao, color=grupo)) + 
@@ -57,18 +60,21 @@ saida_teste <- data.frame(
             testes[[3]]$Chisq[[2]]),
   p = c(testes[[1]]$`Pr(>Chisq)`[[2]],
         testes[[2]]$`Pr(>Chisq)`[[2]],
-        testes[[3]]$`Pr(>Chisq)`[[2]])
+        testes[[3]]$`Pr(>Chisq)`[[2]]),
+  AIC = c(AIC(ajust[[2]]), AIC(ajust[[3]]), AIC(ajust[[4]])),
+  BIC = c(BIC(ajust[[2]]), BIC(ajust[[3]]), BIC(ajust[[4]]))
 ); xtable(saida_teste)
 
 
 #Comparação de modelos
 ajust[[5]] <- glm(formulas[[4]], data = dados, family = Gamma(link = "identity"))
+ajust[[6]] <- glm(formulas[[4]], data = dados, family = Gamma(link = "sqrt"))
 saida_comparacao <- data.frame(
-  modelo = c("Gamma", "Gamma"),
-  ligacao = c("Logaritmo", "Identidade"),
-  AIC = c(AIC(ajust[[4]]), AIC(ajust[[5]])),
-  BIC = c(BIC(ajust[[4]]), BIC(ajust[[5]])),
-  TRV = c(lrtest(ajust[[4]], ajust[[5]])$`Pr(>Chisq)`)
+  modelo = c("Gamma", "Gamma", "Gamma"),
+  ligacao = c("Logaritmo", "Identidade", "Raíz Quadrada"),
+  AIC = c(AIC(ajust[[4]]), AIC(ajust[[5]]), AIC(ajust[[6]])),
+  BIC = c(BIC(ajust[[4]]), BIC(ajust[[5]]), BIC(ajust[[6]])),
+  TRV = c(lrtest(ajust[[4]], ajust[[5]])$`Pr(>Chisq)`, lrtest(ajust[[4]], ajust[[6]])$`Pr(>Chisq)`[[2]])
 ) ; xtable(saida_comparacao)
 
 #Contrastes (precisamos de hipóteses melhores)
@@ -77,6 +83,8 @@ saida_comparacao <- data.frame(
 #Diagnóstico - Gamma (Ident)
 fit.model <- ajust[[5]]
 source("envelope_gama_ident.R")
+fit.model <- ajust[[4]]
+source("envelope_gama_log.R")
 
 
 #Gráfico influencia
@@ -97,10 +105,10 @@ shapiro.test(residuos)
 
 #Residuos vs valores ajustados
 resid_pred_ident <- res_ajust(ajust[[5]])
-plot(resid_pred_ident$resid ~ resid_pred_ident$ajust, pch = 20, cex = 1.4, col = 'blue', main = "Resíduos vs Valores Ajustados")
+plot(resid_pred_ident$resid ~ resid_pred_ident$ajust, pch = 20, cex = 1.4, col = 'black', main = "Resíduos vs Valores Ajustados")
 
 #Quantil quantil normal
-qqnorm(resid_pred_ident$resid, pch = 20, cex = 1.4, col = 'blue')
+qqnorm(resid_pred_ident$resid, pch = 20, cex = 1.4, col = 'black')
 qqline(resid_pred_ident$resid)
 
 
