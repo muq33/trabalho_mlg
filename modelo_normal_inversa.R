@@ -6,6 +6,7 @@ if(!require(ggplot2)){install.packages("ggplot2")}
 if(!require(lmtest)){install.packages("lmtest")}
 if(!require(xtable)){install.packages("xtable")}
 if(!require(car)){install.packages("car")}
+if(!require(moments)){install.packages("moments")}
 
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 source("utils.R")
@@ -44,28 +45,32 @@ saida_teste <- data.frame(
             testes[[3]]$Chisq[[2]]),
   p = c(testes[[1]]$`Pr(>Chisq)`[[2]],
         testes[[2]]$`Pr(>Chisq)`[[2]],
-        testes[[3]]$`Pr(>Chisq)`[[2]])
+        testes[[3]]$`Pr(>Chisq)`[[2]]),
+  AIC = c(AIC(ajust[[2]]), AIC(ajust[[3]]), AIC(ajust[[4]])),
+  BIC = c(BIC(ajust[[2]]), BIC(ajust[[3]]), BIC(ajust[[4]]))
 ); xtable(saida_teste)
-
 
 
 #Comparação de modelos
 ajust[[5]] <- glm(formulas[[4]], data = dados, family = inverse.gaussian(link = "identity"))
-
+ajust[[6]] <- glm(formulas[[4]], data = dados, family = inverse.gaussian(link = "sqrt"))
 saida_comparacao <- data.frame(
-  modelo = c("GInversa", "GInversa"),
-  ligacao = c("Logaritmo", "Identidade"),
-  AIC = c(AIC(ajust[[4]]), AIC(ajust[[5]])),
-  BIC = c(BIC(ajust[[4]]), BIC(ajust[[5]])),
-  TRV = c(lrtest(ajust[[4]], ajust[[5]])$`Pr(>Chisq)`)
+  modelo = c("Gamma", "Gamma", "Gamma"),
+  ligacao = c("Logaritmo", "Identidade", "Raíz Quadrada"),
+  AIC = c(AIC(ajust[[4]]), AIC(ajust[[5]]), AIC(ajust[[6]])),
+  BIC = c(BIC(ajust[[4]]), BIC(ajust[[5]]), BIC(ajust[[6]])),
+  TRV = c(lrtest(ajust[[4]], ajust[[5]])$`Pr(>Chisq)`, lrtest(ajust[[4]], ajust[[6]])$`Pr(>Chisq)`[[2]])
 ) ; xtable(saida_comparacao)
 
 #Contrastes (precisamos de hipóteses melhores)
 
 
 #Diagnóstico - GInversa (Ident)
+fit.model <- ajust[[4]]
+source("envelope_ginv_ident.R")
 fit.model <- ajust[[5]]
 source("envelope_ginv_ident.R")
+
 
 
 #Gráfico influencia

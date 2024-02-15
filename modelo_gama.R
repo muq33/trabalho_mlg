@@ -87,11 +87,6 @@ fit.model <- ajust[[4]]
 source("envelope_gama_log.R")
 
 
-#Gráfico influencia
-grafico_inf <- influence_graph(ajust[[5]], plot =T)
-
-which(grafico_inf > 0.02)
-
 #Distancia Cook
 influenceIndexPlot(ajust[[5]], vars=c("Cook"), pch=19, cex=1.2, main="Distância de Cook") #Modelo ident
 #Residuos estudentizados
@@ -100,15 +95,19 @@ influenceIndexPlot(ajust[[5]], vars=c("Studentized"), pch=19, cex=1.2, main = "R
 #Residuos quantilicos
 residuos <- qresiduals(ajust[[5]])
 plot(residuos, ylab = "Resíduos Quantilicos", pch=19, cex=1.2)
+text(x=match(max(residuos), residuos), y=residuos[match(max(residuos), residuos)], labels=match(max(residuos), residuos), pos=4, col="black")
 shapiro.test(residuos)
 
 
 #Residuos vs valores ajustados
 resid_pred_ident <- res_ajust(ajust[[5]])
-plot(resid_pred_ident$resid ~ resid_pred_ident$ajust, pch = 20, cex = 1.4, col = 'black', main = "Resíduos vs Valores Ajustados")
-
+plot(resid_pred_ident$ajust ~ resid_pred_ident$resid, pch = 20, cex = 1.4, col = 'black', ylab = "Valores ajustados"
+     , main = "Resíduos vs Valores Ajustados", xlab = "Resíduos Quantílicos", xlim = c(-1.5, 2.5))
+text(x=residuos[9], y=ajust[[5]]$fitted.values[9], labels=c("9"), pos=4, col="black")
 #Quantil quantil normal
-qqnorm(resid_pred_ident$resid, pch = 20, cex = 1.4, col = 'black')
+plot_qq <- qqnorm(resid_pred_ident$resid, pch = 20, cex = 1.4, col = 'black')
+text(x=plot_qq$x[match(max(plot_qq$y), plot_qq$y)], y=plot_qq$y[match(max(plot_qq$y), plot_qq$y)],
+     labels=match(max(plot_qq$y), plot_qq$y), pos=1, col="black")
 qqline(resid_pred_ident$resid)
 
 
