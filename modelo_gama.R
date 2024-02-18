@@ -7,6 +7,8 @@ if(!require(lmtest)){install.packages("lmtest")}
 if(!require(xtable)){install.packages("xtable")}
 if(!require(car)){install.packages("car")}
 if(!require(moments)){install.packages("moments")}
+if(!require(multcomp)){install.packages("multcomp")}
+
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 source("utils.R")
 
@@ -118,3 +120,5 @@ ajust2 <- vector("list", 1)
 ajust2[[1]] <- glm(formulas[[4]], data = dados, family = Gamma(link = "identity"))
 
 #Pontos 8 e 9 não sao influentes
+
+#Hipoteses

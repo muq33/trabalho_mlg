@@ -67,18 +67,10 @@ saida_comparacao <- data.frame(
 
 #Diagnóstico - GInversa (Ident)
 fit.model <- ajust[[4]]
-source("envelope_ginv_ident.R")
+source("envelope_ginv_log.R")
 fit.model <- ajust[[5]]
 source("envelope_ginv_ident.R")
 
-
-
-#Gráfico influencia
-par(mfrow = c(1,2))
-grafico_inf <- influence_graph(ajust[[4]], plot =T)
-grafico_inf <- influence_graph(ajust[[5]], plot =T)
-
-which(grafico_inf > 0.02)
 
 #Distancia Cook
 influenceIndexPlot(ajust[[5]], vars=c("Cook"), pch=19, cex=1.2, main="Distância de Cook") #Modelo ident
@@ -93,10 +85,15 @@ shapiro.test(residuos)
 
 #Residuos vs valores ajustados
 resid_pred_ident <- res_ajust(ajust[[5]])
-plot(resid_pred_ident$resid ~ resid_pred_ident$ajust, pch = 20, cex = 1.4, col = 'blue', main = "Resíduos vs Valores Ajustados")
+plot(resid_pred_ident$resid ~ resid_pred_ident$ajust, pch = 20, cex = 1.4, col = 'black', 
+     main = "Resíduos vs Valores Ajustados", ylab = "Resíduos Quantílicos", xlab = "Valores Ajustados")
 
 #Quantil quantil normal
-qqnorm(resid_pred_ident$resid, pch = 20, cex = 1.4, col = 'blue')
+qqnorm(resid_pred_ident$resid, pch = 20, cex = 1.4, col = 'black')
 qqline(resid_pred_ident$resid)
 
+#Modelo sem os pontos 8 e 9
+dados2 <- dados[which(rownames(dados) %in% c("8", "9")), ]
+ajust2 <- vector("list", 1)
+ajust2[[1]] <- glm(formulas[[4]], data = dados, family = inverse.gaussian(link = "identity"))
 
